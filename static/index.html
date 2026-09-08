@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markdown Editor — PDF Formatter</title>
+<!-- No client-side MD renderer — preview uses the backend /api/preview endpoint (format.py pipeline) -->
+
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  overflow: hidden;
+}
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 20px;
+  background: #181825;
+  border-bottom: 1px solid #313244;
+  flex-shrink: 0;
+}
+
+.toolbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #cdd6f4;
+}
+
+.toolbar-brand svg {
+  width: 22px;
+  height: 22px;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: #89b4fa;
+  color: #1e1e2e;
+}
+.btn-primary:hover { background: #74c7ec; }
+.btn-primary:disabled {
+  background: #45475a;
+  color: #6c7086;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #a6adc8;
+  border: 1px solid #45475a;
+}
+.btn-ghost:hover { background: #313244; }
+
+/* ── MAIN LAYOUT ── */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main-pane {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── EDITOR PANE ── */
+.editor-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #313244;
+  min-width: 0;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #1e1e2e;
+  border-bottom: 1px solid #313244;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c7086;
+}
+
+.editor-header .word-count {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #a6adc8;
+}
+
+.editor-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 20px 24px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #cdd6f4;
+  background: #1e1e2e;
+  tab-size: 2;
+}
+
+.editor-textarea::placeholder { color: #585b70; }
+
+/* ── PREVIEW PANE ── */
+.preview-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #f5f5f0;
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #e8e5db;
+  border-bottom: 1px solid #d0c9b0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #7a7a6a;
+}
+
+.preview-status {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #8a8a7a;
+}
+
+.preview-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* ── PREVIEW INNER (matches format.py styling) ── */
+.preview-scroll .document-page {
+  max-width: 210mm;
+  margin: 20px auto;
+  padding: 2cm 2.5cm;
+  background: #ffffff;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+  min-height: 297mm;
+}
+
+.preview-scroll .document-page:empty::after {
+  content: 'Your rendered document will appear here…';
+  display: block;
+  text-align: center;
+  color: #b0b0a0;
+  font-family: Georgia, serif;
+  font-size: 12pt;
+  font-style: italic;
+  padding: 60px 0;
+}
+
+/* ── SCROLLBAR ── */
+.editor-textarea::-webkit-scrollbar,
+.preview-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editor-textarea::-webkit-scrollbar-track,
+.preview-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor-textarea::-webkit-scrollbar-thumb {
+  background: #45475a;
+  border-radius: 4px;
+}
+
+.preview-scroll::-webkit-scrollbar-thumb {
+  background: #c0b8a0;
+  border-radius: 4px;
+}
+
+/* ── Status bar ── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 16px;
+  background: #181825;
+  border-top: 1px solid #313244;
+  font-size: 11px;
+  color: #6c7086;
+}
+
+.status-bar .status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-dot.saved { background: #a6e3a1; }
+.status-dot.typing { background: #f9e2af; }
+.status-dot.error { background: #f38ba8; }
+
+/* ── NOTIFICATION TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.success { background: #a6e3a1; color: #1e1e2e; }
+.toast.error { background: #f38ba8; color: #1e1e2e; }
+.toast.info { background: #89b4fa; color: #1e1e2e; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .main-pane { flex-direction: column; }
+  .editor-pane { border-right: none; border-bottom: 1px solid #313244; max-height: 50vh; }
+  .preview-pane { max-height: 50vh; }
+}
+
+/* ── LOADING SPINNER ── */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #45475a;
+  border-top-color: #89b4fa;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Toolbar -->
+  <header class="toolbar">
+    <div class="toolbar-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#89b4fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      Markdown Editor
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-ghost" id="loadSampleBtn" title="Load sample document">Load Sample</button>
+      <button class="btn btn-primary" id="downloadBtn" title="Generate and download formatted PDF">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Main split pane -->
+  <div class="main-pane">
+    <!-- Editor -->
+    <section class="editor-pane">
+      <div class="editor-header">
+        <span>Editor</span>
+        <span class="word-count" id="wordCount">0 words</span>
+      </div>
+      <textarea class="editor-textarea" id="editor" placeholder="Type your Markdown here…&#10;&#10;# Title&#10;## Subtitle&#10;&#10;Start writing…" spellcheck="false"></textarea>
+    </section>
+
+    <!-- Preview -->
+    <section class="preview-pane">
+      <div class="preview-header">
+        <span>Preview</span>
+        <span class="preview-status" id="previewStatus">ready</span>
+      </div>
+      <div class="preview-scroll" id="previewContainer">
+        <div id="previewContent"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Status bar -->
+  <footer class="status-bar">
+    <span><span class="status-dot saved" id="statusDot"></span><span id="statusText">Ready</span></span>
+    <span id="lineCol">Ln 1, Col 1</span>
+  </footer>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── format.py styling is injected from the server response ───
+
+// ─── DOM refs ───
+const editor = document.getElementById('editor');
+const previewContent = document.getElementById('previewContent');
+const previewStatus = document.getElementById('previewStatus');
+const wordCount = document.getElementById('wordCount');
+const lineCol = document.getElementById('lineCol');
+const statusText = document.getElementById('statusText');
+const statusDot = document.getElementById('statusDot');
+const downloadBtn = document.getElementById('downloadBtn');
+const loadSampleBtn = document.getElementById('loadSampleBtn');
+const toast = document.getElementById('toast');
+
+// ─── render preview via backend (format.py pipeline, Shadow DOM isolates CSS) ───
+let pendingPreview = null;
+let previewShadow = null;
+
+async function renderPreview() {
+  const text = editor.value;
+  if (!text.trim()) {
+    if (previewShadow) previewShadow.innerHTML = '';
+    updateWordCount('');
+    previewStatus.textContent = 'ready';
+    return;
+  }
+
+  const snapshot = text;
+  pendingPreview = snapshot;
+
+  try {
+    const resp = await fetch('/api/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ markdown: text }),
+    });
+
+    if (!resp.ok) throw new Error('Preview request failed');
+
+    const data = await resp.json();
+
+    if (pendingPreview === snapshot) {
+      // Create Shadow DOM on first render to isolate format.py CSS
+      if (!previewShadow) {
+        previewShadow = previewContent.attachShadow({ mode: 'open' });
+      }
+      // Render: format.py CSS + body content wrapped in .document-page
+      previewShadow.innerHTML = `<style>${data.css}</style><div class="document-page">${data.body || ''}</div>`;
+      previewStatus.textContent = 'rendered';
+      updateWordCount(text);
+    }
+  } catch (err) {
+    if (pendingPreview === snapshot) {
+      if (previewShadow) {
+        previewShadow.innerHTML = '<div style="text-align:center;padding:60px 40px;color:#b0b0a0;font-family:Georgia,serif;font-style:italic;">Preview unavailable — server may be restarting.</div>';
+      }
+      previewStatus.textContent = 'error';
+    }
+  }
+}
+
+// ─── word count ───
+function updateWordCount(text) {
+  const trimmed = text.trim();
+  const words = trimmed ? trimmed.split(/\s+/).length : 0;
+  wordCount.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+}
+
+// ─── cursor position ───
+editor.addEventListener('keyup', updateCursorPos);
+editor.addEventListener('click', updateCursorPos);
+
+function updateCursorPos() {
+  const text = editor.value.substring(0, editor.selectionStart);
+  const lines = text.split('\n');
+  const line = lines.length;
+  const col = lines[lines.length - 1].length + 1;
+  lineCol.textContent = `Ln ${line}, Col ${col}`;
+}
+
+// ─── debounced server-side render ───
+let renderTimer;
+editor.addEventListener('input', () => {
+  setStatus('typing', 'Editing…');
+  previewStatus.textContent = '…';
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(() => {
+    renderPreview();
+    setStatus('saved', 'Ready');
+  }, 350);
+});
+
+function setStatus(type, text) {
+  statusDot.className = 'status-dot ' + type;
+  statusText.textContent = text;
+}
+
+// ─── Toast ───
+let toastTimer;
+function showToast(message, type = 'info') {
+  clearTimeout(toastTimer);
+  toast.textContent = message;
+  toast.className = 'toast ' + type + ' show';
+  toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+
+// ─── Download PDF ───
+downloadBtn.addEventListener('click', async () => {
+  const text = editor.value.trim();
+  if (!text) {
+    showToast('Editor is empty — write some Markdown first!', 'error');
+    return;
+  }
+
+  downloadBtn.disabled = true;
+  downloadBtn.innerHTML = '<span class="spinner"></span> Generating…';
+  setStatus('typing', 'Generating PDF…');
+
+  try {
+    const resp = await fetch('/api/download-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ markdown: text }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.text();
+      throw new Error(err || `Server returned ${resp.status}`);
+    }
+
+    // Download the blob
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'documento_formal.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast('PDF downloaded successfully!', 'success');
+    setStatus('saved', 'Ready');
+  } catch (err) {
+    showToast('Failed to generate PDF: ' + err.message, 'error');
+    setStatus('error', 'Error');
+    console.error(err);
+  } finally {
+    downloadBtn.disabled = false;
+    downloadBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download PDF`;
+  }
+});
+
+// ─── Load Sample ───
+loadSampleBtn.addEventListener('click', async () => {
+  try {
+    const resp = await fetch('/ORIGINAL.md');
+    if (!resp.ok) throw new Error('Sample not found');
+    const md = await resp.text();
+    editor.value = md;
+    await renderPreview();
+    updateCursorPos();
+    showToast('Sample document loaded', 'info');
+  } catch {
+    // Fallback inline sample
+    editor.value = `# Sample Document
+
+## Introduction
+
+This is a **sample** Markdown document to demonstrate the editor.
+
+### Features
+
+- Real-time preview with professional formatting
+- PDF export via the **Download PDF** button
+- Uses the same CSS as the formal document pipeline
+
+> "The preview matches the final PDF output."
+
+## Table Example
+
+| Feature | Status |
+|---------|--------|
+| Live Preview | ✅ |
+| PDF Export | ✅ |
+| Mermaid Diagrams | ✅ |
+
+Enjoy writing!`;
+    await renderPreview();
+    updateCursorPos();
+    showToast('Sample content loaded', 'info');
+  }
+});
+
+// ─── Initial render ───
+renderPreview();
+updateCursorPos();
+
+// ─── Keyboard shortcut: Ctrl+Shift+D → Download PDF ───
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    e.preventDefault();
+    downloadBtn.click();
+  }
+});
+</script>
+
+</body>
+</html>

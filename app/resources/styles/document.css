@@ -1,0 +1,316 @@
+/* ============================================================================
+   document.css — Professional document styling (port of utils/format.py
+   DOCUMENT_CSS). The document now renders directly in the light DOM inside a
+   .doc-root wrapper (the print view is the live preview — no Shadow Root, no
+   print-time cloning). Every rule is scoped with :where(.doc-root) so the
+   styling never leaks into the application chrome; :where() keeps the
+   selectors' original specificity.
+   ========================================================================== */
+
+:where(.doc-root) * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Base document typography lives on .doc-root so that both the live page
+   (.document-page) and the paginated Final-mode sheets inherit Georgia. */
+:where(.doc-root) {
+    font-family: 'Georgia', 'Times New Roman', 'Garamond', serif;
+    font-size: 11pt;
+    line-height: 1.55;
+    color: #1a1a1a;
+}
+
+:where(.doc-root) .document-page {
+    background: #ffffff;
+    max-width: 210mm;
+    margin: 20px auto;
+    padding: 2cm 2.5cm;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+}
+
+/* ── DOCUMENT HEADER ── */
+:where(.doc-root) .document-header {
+    text-align: center;
+    margin-bottom: 12pt;
+    padding-bottom: 4pt;
+    border-bottom: 2pt solid #b8a97e;
+}
+
+:where(.doc-root) .document-header h1 {
+    font-family: 'Georgia', serif;
+    font-size: 18pt;
+    font-weight: 700;
+    letter-spacing: 1.5pt;
+    margin-bottom: 4pt;
+    color: #111;
+}
+
+:where(.doc-root) .document-header .subtitle {
+    font-size: 10pt;
+    font-weight: 400;
+    letter-spacing: 0.5pt;
+    color: #555;
+    margin-top: 6pt;
+}
+
+/* ── TABLE OF CONTENTS (auto-generated “Índice”) ── */
+:where(.doc-root) .document-toc {
+    margin: 14pt 0 18pt;
+    padding: 8pt 2pt 10pt;
+    border-top: 2pt solid #b8a97e;
+    border-bottom: 0.5pt solid #d0c9b0;
+}
+
+:where(.doc-root) .document-toc .toc-title {
+    font-family: 'Georgia', serif;
+    font-size: 12.5pt;
+    font-weight: 700;
+    letter-spacing: 1pt;
+    color: #1a1a1a;
+    text-align: center;
+    margin: 0 0 8pt;
+}
+
+:where(.doc-root) .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+:where(.doc-root) .toc-item {
+    margin: 0 0 4pt;
+    line-height: 1.5;
+    font-size: 10.5pt;
+}
+
+:where(.doc-root) .toc-item a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+:where(.doc-root) .toc-item a:hover {
+    color: #7a6a3a;
+}
+
+:where(.doc-root) .toc-lvl-1 {
+    font-weight: 700;
+}
+
+:where(.doc-root) .toc-lvl-2 {
+    font-weight: 600;
+}
+
+:where(.doc-root) .toc-lvl-3 {
+    margin-left: 18pt;
+    font-size: 10pt;
+    color: #444;
+}
+
+:where(.doc-root) .toc-lvl-3 a {
+    color: #444;
+}
+
+/* ── SECTION HEADINGS ── */
+:where(.doc-root) h1,
+:where(.doc-root) h2,
+:where(.doc-root) h3 {
+    scroll-margin-top: 16px;
+}
+
+:where(.doc-root) h2 {
+    font-family: 'Georgia', serif;
+    font-size: 12.5pt;
+    font-weight: 700;
+    letter-spacing: 1pt;
+    color: #1a1a1a;
+    margin-top: 18pt;
+    margin-bottom: 10pt;
+    padding-bottom: 6pt;
+    position: relative;
+    page-break-after: avoid;
+}
+
+:where(.doc-root) h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40%;
+    height: 1.5pt;
+    background: #b8a97e;
+}
+
+:where(.doc-root) h3 {
+    font-family: 'Georgia', serif;
+    font-size: 11pt;
+    font-weight: 700;
+    letter-spacing: 0.5pt;
+    color: #333;
+    margin-top: 12pt;
+    margin-bottom: 8pt;
+    page-break-after: avoid;
+}
+
+/* ── PARAGRAPHS ── */
+:where(.doc-root) p {
+    text-align: justify;
+    text-justify: inter-word;
+    margin-bottom: 9pt;
+    font-size: 10.5pt;
+    line-height: 1.6;
+}
+
+/* ── BOLD ── */
+:where(.doc-root) strong {
+    font-weight: 700;
+}
+
+/* ── HORIZONTAL RULES ── */
+:where(.doc-root) hr {
+    border: none;
+    border-top: 1pt solid #d0c9b0;
+    margin: 14pt 0;
+}
+
+/* ── PAGE BREAKS (markdown: \newpage, \pagebreak, \clearpage) ── */
+:where(.doc-root) .page-break {
+    break-after: page;
+    page-break-after: always;
+    height: 0;
+}
+
+/* Screen/preview: show exactly where the break will land */
+@media screen {
+    :where(.doc-root) .page-break {
+        height: 2px;
+        margin: 16pt 0;
+        background: repeating-linear-gradient(90deg, #b8a97e 0 8px, transparent 8px 16px);
+    }
+}
+
+/* ── TABLES ── */
+:where(.doc-root) table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    margin: 10pt 0;
+    font-size: 9.5pt;
+}
+
+:where(.doc-root) thead {
+    display: table-header-group;
+}
+
+:where(.doc-root) tr {
+    page-break-inside: avoid;
+}
+
+:where(.doc-root) thead,
+:where(.doc-root) tr:first-child {
+    background: #2c2c2c;
+    color: #fff;
+}
+
+:where(.doc-root) th {
+    padding: 8pt 10pt;
+    font-weight: 700;
+    text-align: left;
+    letter-spacing: 0.4pt;
+    font-size: 9pt;
+    text-transform: uppercase;
+    border: 1pt solid #2c2c2c;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+:where(.doc-root) td {
+    padding: 7pt 10pt;
+    border: 0.5pt solid #d0c9b0;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+:where(.doc-root) tbody tr:nth-child(even) {
+    background: #fafaf7;
+}
+
+:where(.doc-root) tbody tr:hover {
+    background: #f0ede4;
+}
+
+/* ── LISTS ── */
+:where(.doc-root) ul,
+:where(.doc-root) ol {
+    margin: 8pt 0 12pt 22pt;
+    font-size: 10.5pt;
+}
+
+:where(.doc-root) li {
+    margin-bottom: 5pt;
+    line-height: 1.55;
+}
+
+/* ── CODE / MONOSPACE ── */
+:where(.doc-root) code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 9pt;
+    background: #f4f1e8;
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    border: 0.5pt solid #d8d3c0;
+}
+
+/* ── FOOTER NOTE ── */
+:where(.doc-root) .footer-note {
+    margin-top: 30pt;
+    padding-top: 12pt;
+    border-top: 0.5pt solid #ccc;
+    text-align: center;
+    font-size: 8.5pt;
+    color: #888;
+    font-style: italic;
+}
+
+/* ── CENTER DIVS ── */
+:where(.doc-root) div[align="center"] {
+    text-align: center;
+}
+
+/* ── HIGHLIGHT BOX (for important callouts) ── */
+:where(.doc-root) .highlight-box {
+    padding: 12pt 16pt;
+    background: #fafaf7;
+    border-left: 3pt solid #b8a97e;
+    margin: 14pt 0;
+    font-size: 10.5pt;
+    line-height: 1.6;
+}
+
+/* ── MERMAID DIAGRAMS ── */
+:where(.doc-root) .mermaid {
+    text-align: center;
+    margin: 16pt 0;
+    overflow-x: auto;
+}
+:where(.doc-root) .mermaid svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ── IMAGES ── */
+:where(.doc-root) img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 2pt;
+}
+
+/* ── PRINT: the Índice gets its own page before the content ── */
+@media print {
+    :where(.doc-root) .document-toc {
+        page-break-after: always;
+        page-break-inside: avoid;
+    }
+}
