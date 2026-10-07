@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CibernetDocs — Markdown PDF Formatter</title>
-<!-- Self-contained desktop app (Neutralinojs): the format.py pipeline is
-     ported to js/app.js — no server-side rendering required.
+<title>DocMaster — Markdown PDF Formatter</title>
+<!-- Self-contained desktop app (Neutralinojs): the Markdown → formal document
+     pipeline lives in js/app.js — no server-side rendering required.
      Two views: "Edit" (the rendered document, WYSIWYG) and "Markdown" (the
      source), switched with the toolbar toggle or Ctrl+E. The Índice is an
      optional document element inserted/removed with the toolbar button. -->
@@ -27,7 +27,7 @@
         <line x1="16" y1="17" x2="8" y2="17"/>
         <polyline points="10 9 9 9 8 9"/>
       </svg>
-      CibernetDocs
+      DocMaster
     </div>
     <div class="toolbar-actions">
       <button class="btn btn-ghost" id="newBtn" title="New document (Ctrl+N)">New</button>
@@ -61,15 +61,15 @@
     <button class="fmt-btn" data-cmd="h2" title="Heading 2">H2</button>
     <button class="fmt-btn" data-cmd="h3" title="Heading 3">H3</button>
     <button class="fmt-btn" data-cmd="p" title="Paragraph">¶</button>
-    <button class="fmt-btn" data-cmd="blockquote" title="Quote">❝</button>
+    <button class="fmt-btn" data-cmd="blockquote" title="Quote"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v6a2 2 0 0 1-2 2"/><path d="M19 11h-4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v6a2 2 0 0 1-2 2"/></svg></button>
     <button class="fmt-btn" data-cmd="code" title="Inline code">&lt;/&gt;</button>
     <button class="fmt-btn" data-cmd="pre" title="Code block">```</button>
     <span class="fmt-sep"></span>
-    <button class="fmt-btn" data-cmd="ul" title="Bullet list">•≡</button>
-    <button class="fmt-btn" data-cmd="ol" title="Numbered list">1≡</button>
-    <button class="fmt-btn" data-cmd="hr" title="Horizontal rule">—</button>
-    <button class="fmt-btn" data-cmd="pagebreak" title="Page break">⤓</button>
-    <button class="fmt-btn" id="fmtToc" title="Insert / remove the Índice (table of contents generated from headings)">☰ Índice</button>
+    <button class="fmt-btn" data-cmd="ul" title="Bullet list"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+    <button class="fmt-btn" data-cmd="ol" title="Numbered list"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h11M10 12h11M10 18h11"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
+    <button class="fmt-btn" data-cmd="hr" title="Horizontal rule"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></button>
+    <button class="fmt-btn" data-cmd="pagebreak" title="Page break"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16"/><path d="M4 20h16"/><path d="M12 7v7"/><path d="m9 11 3 3 3-3"/></svg></button>
+    <button class="fmt-btn" id="fmtToc" title="Insert / remove the Índice (table of contents generated from headings)"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg> Índice</button>
     <span class="fmt-sep"></span>
     <select id="fmtColor" class="fmt-select" title="Text color">
       <option value="">Color…</option>
@@ -104,9 +104,9 @@
       <option value="Consolas, monospace">Consolas</option>
     </select>
     <span class="fmt-sep"></span>
-    <button class="fmt-btn" id="fmtLink" title="Insert link">🔗 Link</button>
-    <button class="fmt-btn" id="fmtImage" title="Insert image">🖼 Image</button>
-    <button class="fmt-btn" id="fmtTable" title="Insert table">⊞ Table</button>
+    <button class="fmt-btn" id="fmtLink" title="Insert link"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Link</button>
+    <button class="fmt-btn" id="fmtImage" title="Insert image"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg> Image</button>
+    <button class="fmt-btn" id="fmtTable" title="Insert table"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg> Table</button>
   </div>
 
   <!-- Editor area: shared view header + main pane (one view per mode) -->
@@ -122,12 +122,21 @@
       <!-- Library panel: workspace files with autosave (desktop app only) -->
       <aside class="files-panel" id="filesPanel">
         <div class="files-panel-header">
-          <span class="files-title" title="Documents workspace — every edit autosaves">Library</span>
           <div class="files-actions">
-            <button class="files-btn" id="newLibBtn" title="Create a library (folder)">+ Library</button>
-            <button class="files-btn" id="newDocBtn" title="Create a document (.md)">+ Doc</button>
-            <button class="files-btn" id="filesRefreshBtn" title="Refresh the file list">⟳</button>
+            <button class="files-btn grow" id="newLibBtn" title="Create a library (folder)">+ Library</button>
+            <button class="files-btn grow" id="newDocBtn" title="Create a document (.md)">+ Doc</button>
+            <button class="files-btn" id="filesImportBtn" title="Import a library folder"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
+            <button class="files-btn" id="filesTrashBtn" title="Show / hide Trash"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span class="files-count" id="filesTrashCount" hidden>0</span></button>
+            <button class="files-btn" id="filesEmptyTrashBtn" title="Permanently delete everything in Trash" hidden>Empty</button>
+            <button class="files-btn" id="filesRefreshBtn" title="Refresh the file list"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button>
           </div>
+        </div>
+        <div class="files-search-bar">
+          <input id="filesSearch" class="files-search" type="search" placeholder="Search…" spellcheck="false">
+          <select id="filesSort" class="files-sort" title="Sort documents">
+            <option value="name">Name</option>
+            <option value="modified">Modified</option>
+          </select>
         </div>
         <div class="files-tree" id="filesTree"></div>
         <div class="files-empty" id="filesEmpty">No documents yet.<br>Create a library or a document to start.</div>
@@ -162,6 +171,9 @@
   <div class="fmt-popover-body" id="fmtPopoverBody"></div>
 </div>
 
+<!-- Library right-click menu (rename / duplicate / export / trash) -->
+<div class="files-menu" id="filesMenu" hidden></div>
+
 <!-- Vendor libraries (bundled locally — no CDN, works offline) -->
 <script src="/js/marked.min.js"></script>
 <script src="/js/marked-smartypants.min.js"></script>
@@ -170,6 +182,12 @@
 <script src="/js/turndown-plugin-gfm.min.js"></script>
 <script src="/lib/mermaid.min.js"></script>
 <script src="/js/neutralino.js"></script>
+
+<!-- Pagination engine (page-fold guides + deterministic PDF sheets) -->
+<script src="/js/pagination.js"></script>
+
+<!-- Library helpers (pure path / name logic) -->
+<script src="/js/files.js"></script>
 
 <!-- App logic -->
 <script src="/js/app.js"></script>

@@ -7,7 +7,7 @@
 
 ## Introduction
 
-This is a **sample** Markdown document to demonstrate the CibernetDocs desktop editor. Everything is rendered locally — no server, no internet connection required.
+This is a **sample** Markdown document to demonstrate the DocMaster desktop editor. Everything is rendered locally — no server, no internet connection required.
 
 ### Features
 
@@ -22,10 +22,10 @@ This is a **sample** Markdown document to demonstrate the CibernetDocs desktop e
 
 | Feature | Status |
 |---------|--------|
-| Live Preview | ✅ |
-| PDF Export | ✅ |
-| Mermaid Diagrams | ✅ |
-| Works Offline | ✅ |
+| Live Preview | Yes |
+| PDF Export | Yes |
+| Mermaid Diagrams | Yes |
+| Works Offline | Yes |
 
 ## Process Diagram
 
@@ -41,7 +41,7 @@ flowchart LR
 ## Formal Document Style
 
 1. The first heading becomes the document header.
-2. Paragraphs are justified with a serif typeface.
+2. Paragraphs are left-aligned (ATS-safe) with a serif typeface.
 3. Tables, lists, and code blocks follow the professional stylesheet.
 4. The PDF uses A4 pages with `2.5cm / 2.8cm` margins.
 

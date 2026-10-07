@@ -1,6 +1,6 @@
 /* ============================================================================
-   document.css — Professional document styling (port of utils/format.py
-   DOCUMENT_CSS). The document now renders directly in the light DOM inside a
+   document.css — Professional document styling (DOCUMENT_CSS).
+   The document renders directly in the light DOM inside a
    .doc-root wrapper (the print view is the live preview — no Shadow Root, no
    print-time cloning). Every rule is scoped with :where(.doc-root) so the
    styling never leaks into the application chrome; :where() keeps the
@@ -14,7 +14,7 @@
 }
 
 /* Base document typography lives on .doc-root so that both the live page
-   (.document-page) and the paginated Final-mode sheets inherit Georgia. */
+   (.document-page) and the paginated print sheets inherit Georgia. */
 :where(.doc-root) {
     font-family: 'Georgia', 'Times New Roman', 'Garamond', serif;
     font-size: 11pt;
@@ -42,7 +42,6 @@
     font-family: 'Georgia', serif;
     font-size: 18pt;
     font-weight: 700;
-    letter-spacing: 1.5pt;
     margin-bottom: 4pt;
     color: #111;
 }
@@ -50,7 +49,6 @@
 :where(.doc-root) .document-header .subtitle {
     font-size: 10pt;
     font-weight: 400;
-    letter-spacing: 0.5pt;
     color: #555;
     margin-top: 6pt;
 }
@@ -67,7 +65,6 @@
     font-family: 'Georgia', serif;
     font-size: 12.5pt;
     font-weight: 700;
-    letter-spacing: 1pt;
     color: #1a1a1a;
     text-align: center;
     margin: 0 0 8pt;
@@ -123,7 +120,6 @@
     font-family: 'Georgia', serif;
     font-size: 12.5pt;
     font-weight: 700;
-    letter-spacing: 1pt;
     color: #1a1a1a;
     margin-top: 18pt;
     margin-bottom: 10pt;
@@ -146,7 +142,6 @@
     font-family: 'Georgia', serif;
     font-size: 11pt;
     font-weight: 700;
-    letter-spacing: 0.5pt;
     color: #333;
     margin-top: 12pt;
     margin-bottom: 8pt;
@@ -155,8 +150,11 @@
 
 /* ── PARAGRAPHS ── */
 :where(.doc-root) p {
-    text-align: justify;
-    text-justify: inter-word;
+    /* Left-aligned, never justified: Chromium encodes justified lines as
+       separate per-word text runs, so PDF text extractors (ATS parsers)
+       lose the spaces between words. Left alignment keeps each line a
+       single text run and the text layer parses cleanly. */
+    text-align: left;
     margin-bottom: 9pt;
     font-size: 10.5pt;
     line-height: 1.6;
@@ -217,7 +215,6 @@
     padding: 8pt 10pt;
     font-weight: 700;
     text-align: left;
-    letter-spacing: 0.4pt;
     font-size: 9pt;
     text-transform: uppercase;
     border: 1pt solid #2c2c2c;

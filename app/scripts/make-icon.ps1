@@ -1,4 +1,4 @@
-# make-icon.ps1 — draws the CibernetDocs app icon (dark rounded square,
+# make-icon.ps1 — draws the DocMaster app icon (dark rounded square,
 # cream document page, gold text lines, blue accent) at 256x256 PNG.
 Add-Type -AssemblyName System.Drawing
 

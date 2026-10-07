@@ -1,8 +1,8 @@
 {
-  "name": "cibernetdocs",
+  "name": "docmaster",
   "version": "1.0.0",
   "private": true,
-  "description": "CibernetDocs — self-contained Markdown to formal PDF document formatter (Neutralinojs desktop app)",
+  "description": "DocMaster — self-contained Markdown to formal PDF document formatter (Neutralinojs desktop app)",
   "scripts": {
     "dev": "neu run",
     "build": "neu build",

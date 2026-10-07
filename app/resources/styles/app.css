@@ -4,10 +4,16 @@
    .doc-root) and applies to the editable rendered document.
    ========================================================================== */
 
-/* ── PRINT PAGE SETUP (matches format.py @page) ── */
+/* ── PRINT PAGE SETUP ──
+   Zero @page margin: Chromium only renders its own date/URL headers and
+   footers when the page margin leaves room for them, so margin: 0 keeps the
+   print dialog's header/footer output out of the exported PDF. The document's
+   2.5cm/2.8cm margins now live inside each .print-page sheet (padding on a
+   full 210×297mm sheet), so the content box stays exactly the 154 mm × 247 mm
+   the pagination engine budgets for. */
 @page {
     size: A4;
-    margin: 2.5cm 2.8cm 2.5cm 2.8cm;
+    margin: 0;
 }
 
 /* ── RESET & BASE ── */
@@ -113,6 +119,9 @@ body.mode-markdown .format-bar { display: none; }
    matches the exported PDF. */
 
 .fmt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     background: transparent;
     color: #cdd6f4;
     border: none;
@@ -126,6 +135,8 @@ body.mode-markdown .format-bar { display: none; }
     transition: background 0.12s;
     white-space: nowrap;
 }
+
+.ico { display: block; flex-shrink: 0; }
 
 .fmt-btn:hover { background: #313244; }
 .fmt-btn:active { background: #45475a; }
@@ -294,8 +305,8 @@ body.mode-markdown .format-bar { display: none; }
 }
 
 /* the rendered document itself is editable; its content width matches the
-   print layout exactly (@page margins 2.5cm/2.8cm → 154mm content), so
-   switching between Edit and Final never reflows the document */
+   print layout exactly (@page margins 2.5cm/2.8cm → 154mm content), so the
+   document never reflows between editing and the paginated PDF sheets */
 .doc-scroll .document-page {
     max-width: 210mm;
     margin: 20px auto;
@@ -364,24 +375,20 @@ body.files-open .files-panel { display: flex; }
 .files-panel-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 6px;
     padding: 8px 10px;
     border-bottom: 1px solid #313244;
 }
 
-.files-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #a6adc8;
-    white-space: nowrap;
-}
-
-.files-actions { display: flex; gap: 4px; }
+.files-actions { display: flex; flex: 1; min-width: 0; gap: 4px; }
 
 .files-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
     background: transparent;
     color: #cdd6f4;
     border: 1px solid #313244;
@@ -391,6 +398,25 @@ body.files-open .files-panel { display: flex; }
     cursor: pointer;
 }
 .files-btn:hover { background: #313244; }
+.files-btn.has-items { border-color: #f38ba8; color: #f9e2af; }
+.files-btn.grow { flex: 1 1 auto; min-width: 0; }
+
+.files-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 4px;
+    box-sizing: border-box;
+    border-radius: 7px;
+    background: #f38ba8;
+    color: #1e1e2e;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+}
 
 .files-tree {
     flex: 1;
@@ -424,12 +450,21 @@ body.files-open .files-panel { display: flex; }
 .files-row.active { background: #45475a; color: #ffffff; }
 
 .files-caret {
-    width: 10px;
+    width: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    font-size: 9px;
     color: #89b4fa;
 }
-.files-icon { font-size: 11px; flex-shrink: 0; }
+.files-caret svg { transition: transform 0.12s ease; }
+.files-caret.collapsed svg { transform: rotate(-90deg); }
+.files-icon {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: #89b4fa;
+}
 .files-name {
     flex: 1;
     overflow: hidden;
@@ -438,15 +473,18 @@ body.files-open .files-panel { display: flex; }
 
 .files-del {
     visibility: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
     color: #f38ba8;
-    font-size: 13px;
     line-height: 1;
     cursor: pointer;
     padding: 0 2px;
 }
 .files-row:hover .files-del { visibility: visible; }
+.files-row.trash .files-del { visibility: visible; }
 .files-del:hover { color: #ff9db1; }
 
 .files-input {
@@ -461,6 +499,69 @@ body.files-open .files-panel { display: flex; }
     outline: none;
 }
 .files-creating { padding: 2px 6px; }
+
+.files-btn.active { background: #45475a; color: #ffffff; border-color: #585b70; }
+
+.files-search-bar {
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px;
+    border-bottom: 1px solid #313244;
+}
+
+.files-search {
+    flex: 1;
+    min-width: 0;
+    background: #11111b;
+    color: #cdd6f4;
+    border: 1px solid #313244;
+    border-radius: 4px;
+    font-size: 12px;
+    padding: 3px 6px;
+    outline: none;
+}
+.files-search:focus { border-color: #89b4fa; }
+
+.files-sort {
+    background: #11111b;
+    color: #cdd6f4;
+    border: 1px solid #313244;
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 3px 4px;
+    outline: none;
+}
+
+.files-row.drop-target { background: #45475a; outline: 1px solid #89b4fa; }
+.files-tree.drop-root { outline: 1px dashed #585b70; outline-offset: -3px; }
+
+.files-restore { color: #a6e3a1; }
+.files-restore:hover { color: #b9f0b3; }
+
+.files-menu {
+    position: fixed;
+    z-index: 1200;
+    min-width: 150px;
+    padding: 4px;
+    background: #181825;
+    border: 1px solid #313244;
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.files-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #cdd6f4;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.files-menu-item:hover { background: #313244; }
 
 .files-empty {
     padding: 14px 12px;
@@ -593,7 +694,42 @@ body.files-open .files-panel { display: flex; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── PRINT: the live editable document is the print view ── */
+/* ── PRINT SHEETS (deterministic export) ──
+   Export paginates the live document into full-page A4 sheets
+   (#printRoot > .print-page). Each sheet is the whole 210×297mm page with the
+   2.5cm/2.8cm document margins applied as internal padding, so its content
+   box is exactly 154 mm × 247 mm — the budget the fold guides are drawn from.
+   One sheet prints as exactly one PDF page, and because @page has zero margin
+   the dialog's date/URL headers and footers have no room to render. */
+.print-root {
+    position: fixed;
+    left: -100000px;
+    top: 0;
+    width: 210mm;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* One sheet = one PDF page: the printed page, with the document margins as
+   padding, so the geometry measured while paginating (screen) is the printed
+   geometry. */
+.print-root .print-page {
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
+    padding: 2.5cm 2.8cm;
+    background: #ffffff;
+    margin: 0;
+    overflow: hidden;
+    page-break-after: always;
+    page-break-inside: avoid;
+}
+
+.print-root .print-page:last-child {
+    page-break-after: auto;
+}
+
+/* ── PRINT: the exported PDF is the paginated sheet clone only ── */
 @media print {
     html, body {
         background: #fff;
@@ -612,32 +748,37 @@ body.files-open .files-panel { display: flex; }
         display: none !important;
     }
 
-    .app-container {
-        display: block;
-        height: auto;
-    }
-
-    .main-pane {
-        display: block;
-        overflow: visible;
-    }
-
-    .doc-view {
-        display: block;
-        background: #fff;
-        overflow: visible;
-    }
-
+    /* the live editable page never prints directly — only #printRoot does */
+    .app-container,
+    .main-pane,
+    .doc-view,
     .doc-scroll {
-        overflow: visible;
-        padding: 0;
+        display: none !important;
     }
 
-    .doc-scroll .document-page {
-        max-width: 100%;
-        margin: 0;
-        padding: 0;
-        box-shadow: none;
-        min-height: 0;
+    .print-root {
+        position: static;
+        left: auto;
+        top: auto;
+        width: auto;
+        visibility: visible;
+        pointer-events: auto;
     }
+
+    .print-root .print-page {
+        margin: 0 auto;
+    }
+
+    .print-root .print-page:last-child {
+        page-break-after: auto;
+    }
+
+    /* Margins are truncated at page breaks (same as print fragmentation),
+       and a paragraph/pre fragment that continues a box started on the
+       previous page carries no margin where the box was cut. */
+    .print-root .print-page > :first-child { margin-top: 0 !important; }
+    .print-root .print-page > :last-child { margin-bottom: 0 !important; }
+    .print-root .pg-frag-start { margin-top: 0 !important; }
+    .print-root .pg-frag-more { margin-bottom: 0 !important; }
+    .print-root .pg-edge-last > :last-child { margin-bottom: 0 !important; }
 }

@@ -1,5 +1,5 @@
 {
-  "applicationId": "com.cibernetdocs.formatter",
+  "applicationId": "com.docmaster.formatter",
   "version": "1.0.0",
   "defaultMode": "window",
   "port": 0,
@@ -25,7 +25,7 @@
   "globalVariables": {},
   "modes": {
     "window": {
-      "title": "CibernetDocs",
+      "title": "DocMaster",
       "width": 1440,
       "height": 900,
       "minWidth": 960,
@@ -40,7 +40,7 @@
     }
   },
   "cli": {
-    "binaryName": "cibernetdocs",
+    "binaryName": "docmaster",
     "resourcesPath": "/resources/",
     "extensionsPath": "/extensions/",
     "extensionsExclude": ["node_modules"],
@@ -48,9 +48,9 @@
     "binaryVersion": "6.9.0",
     "clientVersion": "6.9.0"
   },
-  "applicationName": "CibernetDocs",
-  "author": "CibernetDocs",
+  "applicationName": "DocMaster",
+  "author": "DocMaster",
   "description": "Markdown to formal PDF document formatter (self-contained desktop app)",
-  "copyright": "Copyright © 2026 CibernetDocs",
+  "copyright": "Copyright © 2026 DocMaster",
   "applicationIcon": "buildAssets/appIcon.png"
 }
